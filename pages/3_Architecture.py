@@ -1,6 +1,14 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
+# Hide the Streamlit gradient bar
+hide_decoration_bar_style = '''
+    <style>
+        header {visibility: hidden;}
+    </style>
+'''
+st.markdown(hide_decoration_bar_style, unsafe_allow_html=True)
+
 st.title("What's under the hood?")
 
 with st.sidebar:
@@ -17,8 +25,9 @@ def mermaid(code: str) -> None:
             import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
             mermaid.initialize({{ startOnLoad: true }});
         </script>
-        """
-    ) # , height=600
+        """,
+        height = 1200
+    )
 
 mermaid(
     """

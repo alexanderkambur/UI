@@ -1,6 +1,8 @@
 import streamlit as st
+import random
+import time
 
-# Hide the Streamlit menu
+# Hide the Streamlit gradient bar
 hide_decoration_bar_style = '''
     <style>
         header {visibility: hidden;}
@@ -16,16 +18,38 @@ with st.sidebar:
 st.title("Chatbot")
 st.caption("Powered by Mistral7B and RAG to provide context aware responses to user queries.")
 
+# Streamed response emulator
+def response_generator():
+    response = random.choice(
+        [
+            "Hello there! How can I assist you today?",
+            "Hi, human! Is there anything I can help you with?",
+            "Do you need help?",
+        ]
+    )
+    for word in response.split():
+        yield word + " "
+        time.sleep(0.05)
+
+# Initialize chat history
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
+    st.session_state.messages = []
 
-for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).write(msg["content"])
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-if prompt := st.chat_input():
+# Accept user input
+if prompt := st.chat_input("What is up?"):
+    # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
-    st.chat_message("user").write(prompt)
+    # Display user message in chat message container
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-    msg = "Chatbot unavailable at the moment."
-    st.session_state.messages.append({"role": "assistant", "content": msg})
-    st.chat_message("assistant").write(msg)
+    # Display assistant response in chat message container
+    with st.chat_message("assistant"):
+        response = st.write_stream(response_generator())
+    # Add assistant response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": response})
